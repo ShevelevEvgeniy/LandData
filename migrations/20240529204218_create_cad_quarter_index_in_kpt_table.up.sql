@@ -1,0 +1,1 @@
+CREATE INDEX kpt_cad_quarter_inx ON kpt USING hash (cad_quarter);

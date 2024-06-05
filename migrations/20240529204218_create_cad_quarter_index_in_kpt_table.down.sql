@@ -1,0 +1,1 @@
+DROP INDEX kpt_cad_quarter_idx
