@@ -42,6 +42,8 @@ func MustLoad(log *slog.Logger) *Config {
 		"Minio.UseSSL", cfg.Minio.UseSSL,
 		"Minio.Region", cfg.Minio.Region,
 		"Minio.BucketName", cfg.Minio.BucketName,
+		"RetryConfig.Attempts", cfg.RetryConfig.Attempts,
+		"RetryConfig.Delay", cfg.RetryConfig.Delay,
 	)
 
 	return &cfg

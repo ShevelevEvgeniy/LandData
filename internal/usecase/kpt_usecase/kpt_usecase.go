@@ -1,4 +1,4 @@
-package usecase
+package kpt_usecase
 
 import (
 	"context"
@@ -47,9 +47,27 @@ func (k *KptUseCase) SaveKpt(ctx context.Context, dto *dto.KptDto) error {
 	group, gCtx := errgroup.WithContext(ctx)
 
 	tasks := []func(ctx context.Context) error{
-		func(ctx context.Context) error { return k.kptService.SaveKptInfo(ctx, kptInfo) },
-		func(ctx context.Context) error { return k.kptService.UploadFileToMinio(ctx, dto) },
-		func(ctx context.Context) error { return k.lpService.SaveLandPlotsFromKpt(ctx, dto) },
+		func(ctx context.Context) error {
+			err := k.kptService.SaveKptInfo(ctx, kptInfo)
+			if err != nil {
+				k.log.Error("Failed to save KptInfo", sl.Err(err))
+			}
+			return err
+		},
+		func(ctx context.Context) error {
+			err := k.kptService.UploadFileToMinio(ctx, dto)
+			if err != nil {
+				k.log.Error("Failed to upload file to Minio", sl.Err(err))
+			}
+			return err
+		},
+		func(ctx context.Context) error {
+			err := k.lpService.SaveLandPlotsFromKpt(ctx, dto)
+			if err != nil {
+				k.log.Error("Failed to save land plots from Kpt", sl.Err(err))
+			}
+			return err
+		},
 	}
 
 	for _, task := range tasks {
