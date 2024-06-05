@@ -2,8 +2,8 @@ package app
 
 import (
 	"context"
-	"github.com/ShevelevEvgeniy/app/internal/usecase"
-	"github.com/ShevelevEvgeniy/app/pkg/retry_func"
+	kptUsecase "github.com/ShevelevEvgeniy/app/internal/usecase/kpt_usecase"
+	retryFunc "github.com/ShevelevEvgeniy/app/pkg/retry_func"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"log/slog"
 	"os"
@@ -35,7 +35,7 @@ type DiContainer struct {
 	landPlotsService    services.LandPlotsService
 	kptService          services.KptService
 	validator           *validator.Validate
-	retry               *retry_func.RetryFunc
+	retry               *retryFunc.RetryFunc
 	kptUseCase          kptHandler.KptUseCaseInterface
 	landPlotsHandler    *landPlotsHandler.LandPlotsHandler
 	kptHandler          *kptHandler.KptHandler
@@ -128,9 +128,9 @@ func (d *DiContainer) Validator() *validator.Validate {
 	return d.validator
 }
 
-func (d *DiContainer) Retry(ctx context.Context) *retry_func.RetryFunc {
+func (d *DiContainer) Retry(ctx context.Context) *retryFunc.RetryFunc {
 	if d.retry == nil {
-		d.retry = retry_func.NewRetryFunc(d.Config(ctx).RetryConfig, d.log)
+		d.retry = retryFunc.NewRetryFunc(d.Config(ctx).RetryConfig, d.log)
 	}
 
 	return d.retry
@@ -138,7 +138,7 @@ func (d *DiContainer) Retry(ctx context.Context) *retry_func.RetryFunc {
 
 func (d *DiContainer) KptUseCase(ctx context.Context) kptHandler.KptUseCaseInterface {
 	if d.kptUseCase == nil {
-		d.kptUseCase = usecase.NewKptUseCase(d.KptService(ctx), d.LandPlotsService(ctx), d.Retry(ctx), d.log)
+		d.kptUseCase = kptUsecase.NewKptUseCase(d.KptService(ctx), d.LandPlotsService(ctx), d.Retry(ctx), d.log)
 	}
 
 	return d.kptUseCase
