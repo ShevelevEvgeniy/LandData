@@ -16,4 +16,10 @@ var (
 
 	//go:embed kpt/get_kpt_date_formation.sql
 	GetKptDateFormation string
+
+	//go:embed kpt/get_kpt_info.sql
+	GetKptInfo string
+
+	//go:embed kpt/get_kpt_name.sql
+	GetKptName string
 )

@@ -25,7 +25,8 @@ func (a *App) initRouter(ctx context.Context, DiContainer *DiContainer) *chi.Mux
 		})
 
 		router.Route(routes.KptGroup, func(router chi.Router) {
-			router.Post(routes.SaveKpt, DiContainer.KptHandler(ctx).SaveKpt(ctx))
+			router.Post(routes.SaveKpt, DiContainer.SaveKptHandler(ctx).SaveKpt(ctx))
+			router.Get(routes.GetDownloadLinkForKpt, DiContainer.GetDownloadLinkForKptHandler(ctx).GetDownloadLinkKpt(ctx))
 		})
 	})
 

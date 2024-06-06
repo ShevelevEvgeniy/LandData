@@ -1,4 +1,4 @@
-package kpt_handler
+package save_kpt_handler
 
 import "github.com/ShevelevEvgeniy/app/lib/api/response"
 

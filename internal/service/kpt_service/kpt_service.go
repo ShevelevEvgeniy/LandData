@@ -45,3 +45,27 @@ func (k *KptService) SaveKptInfo(ctx context.Context, kptInfo *model.Kpt) error 
 func (k *KptService) UploadFileToMinio(ctx context.Context, dto *dto.KptDto) error {
 	return k.Clients.UploadFile(ctx, dto.KptHeaders.Filename, bytes.NewReader(dto.Kpt.Bytes()), dto.KptHeaders.Size)
 }
+
+func (k *KptService) GetKptInfo(ctx context.Context, cadQuarter string) (dto.KptInfo, error) {
+	kptInfo, err := k.repository.GetKptInfo(ctx, cadQuarter)
+	if err != nil {
+		return dto.KptInfo{}, errors.Wrap(err, "failed to get kpt info")
+	}
+	kptInfo.CadQuarter = cadQuarter
+
+	return kptInfo, nil
+}
+
+func (k *KptService) GetKptLink(ctx context.Context, cadQuarter string) (string, error) {
+	kptName, err := k.repository.GetKptName(ctx, cadQuarter)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to get kpt name")
+	}
+
+	link, err := k.Clients.GetLinkDownload(ctx, kptName)
+	if err != nil {
+		return "", err
+	}
+
+	return link.String(), err
+}

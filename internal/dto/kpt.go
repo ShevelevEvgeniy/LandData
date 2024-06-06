@@ -7,6 +7,7 @@ import (
 )
 
 type KptDto struct {
+	CadQuarter string `json:"cad_quarter" validate:"required,cad_quarter"`
 	Kpt        bytes.Buffer
 	KptHeaders *multipart.FileHeader
 	Territory  *ExtractCadastralPlanTerritory
