@@ -1,4 +1,4 @@
-package kpt_handler
+package save_kpt_handler
 
 import (
 	"bytes"
@@ -22,19 +22,19 @@ type KptUseCaseInterface interface {
 	SaveKpt(ctx context.Context, dto *Dto.KptDto) error
 }
 
-type KptHandler struct {
+type SaveKptHandler struct {
 	log     *slog.Logger
 	UseCase KptUseCaseInterface
 }
 
-func NewKptHandler(log *slog.Logger, useCase KptUseCaseInterface) *KptHandler {
-	return &KptHandler{
+func NewKptHandler(log *slog.Logger, useCase KptUseCaseInterface) *SaveKptHandler {
+	return &SaveKptHandler{
 		log:     log,
 		UseCase: useCase,
 	}
 }
 
-func (k *KptHandler) SaveKpt(ctx context.Context) http.HandlerFunc {
+func (k *SaveKptHandler) SaveKpt(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "KptHandler.SaveKpt"
 
@@ -76,7 +76,7 @@ func (k *KptHandler) SaveKpt(ctx context.Context) http.HandlerFunc {
 	}
 }
 
-func (k *KptHandler) uploadDto(r *http.Request) (Dto.KptDto, error) {
+func (k *SaveKptHandler) uploadDto(r *http.Request) (Dto.KptDto, error) {
 	var err error
 	var dto Dto.KptDto
 	dto.Territory = &Dto.ExtractCadastralPlanTerritory{}
@@ -89,7 +89,7 @@ func (k *KptHandler) uploadDto(r *http.Request) (Dto.KptDto, error) {
 	defer func(kpt multipart.File) {
 		err := kpt.Close()
 		if err != nil {
-			k.log.Error("Failed to close kpt_handler file", sl.Err(err))
+			k.log.Error("Failed to close save_kpt_handler file", sl.Err(err))
 		}
 	}(kpt)
 

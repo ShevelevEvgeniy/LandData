@@ -13,15 +13,15 @@ import (
 	"log/slog"
 )
 
-type KptUseCase struct {
+type SaveKptUseCase struct {
 	kptService service.KptService
 	lpService  service.LandPlotsService
 	retry      *retryFunc.RetryFunc
 	log        *slog.Logger
 }
 
-func NewKptUseCase(kptService service.KptService, lpService service.LandPlotsService, retry *retryFunc.RetryFunc, log *slog.Logger) *KptUseCase {
-	return &KptUseCase{
+func NewKptUseCase(kptService service.KptService, lpService service.LandPlotsService, retry *retryFunc.RetryFunc, log *slog.Logger) *SaveKptUseCase {
+	return &SaveKptUseCase{
 		kptService: kptService,
 		lpService:  lpService,
 		retry:      retry,
@@ -29,7 +29,7 @@ func NewKptUseCase(kptService service.KptService, lpService service.LandPlotsSer
 	}
 }
 
-func (k *KptUseCase) SaveKpt(ctx context.Context, dto *dto.KptDto) error {
+func (k *SaveKptUseCase) SaveKpt(ctx context.Context, dto *dto.KptDto) error {
 	kptInfo, err := converter.ToKptInfoFromKpt(dto)
 	if err != nil {
 		return err

@@ -16,4 +16,6 @@ type KptService interface {
 	ExistKpt(ctx context.Context, kptInfo *model.Kpt) error
 	SaveKptInfo(ctx context.Context, kptInfo *model.Kpt) error
 	UploadFileToMinio(ctx context.Context, dto *dto.KptDto) error
+	GetKptInfo(ctx context.Context, cadQuarter string) (dto.KptInfo, error)
+	GetKptLink(ctx context.Context, cadQuarter string) (string, error)
 }

@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	getDownloadLinkForKptHandler "github.com/ShevelevEvgeniy/app/internal/http-server/api/v1/handlers/get_download_link_kpt_handler"
 	kptUsecase "github.com/ShevelevEvgeniy/app/internal/usecase/kpt_usecase"
 	retryFunc "github.com/ShevelevEvgeniy/app/pkg/retry_func"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -9,8 +10,8 @@ import (
 	"os"
 
 	"github.com/ShevelevEvgeniy/app/config"
-	kptHandler "github.com/ShevelevEvgeniy/app/internal/http-server/api/v1/handlers/kpt_handler"
 	landPlotsHandler "github.com/ShevelevEvgeniy/app/internal/http-server/api/v1/handlers/land_plots_handler"
+	savekptHandler "github.com/ShevelevEvgeniy/app/internal/http-server/api/v1/handlers/save_kpt_handler"
 	"github.com/ShevelevEvgeniy/app/internal/repository"
 	kptRepository "github.com/ShevelevEvgeniy/app/internal/repository/kpt_repository"
 	landPlotsRepository "github.com/ShevelevEvgeniy/app/internal/repository/land_plots_repository"
@@ -26,19 +27,21 @@ import (
 )
 
 type DiContainer struct {
-	log                 *slog.Logger
-	cfg                 *config.Config
-	dbConn              *pgxpool.Pool
-	landPlotsRepository repository.LandPlotsRepository
-	kptRepository       repository.KptRepository
-	s3Clients           s3Client.MinioClient
-	landPlotsService    services.LandPlotsService
-	kptService          services.KptService
-	validator           *validator.Validate
-	retry               *retryFunc.RetryFunc
-	kptUseCase          kptHandler.KptUseCaseInterface
-	landPlotsHandler    *landPlotsHandler.LandPlotsHandler
-	kptHandler          *kptHandler.KptHandler
+	log                          *slog.Logger
+	cfg                          *config.Config
+	dbConn                       *pgxpool.Pool
+	landPlotsRepository          repository.LandPlotsRepository
+	kptRepository                repository.KptRepository
+	s3Clients                    s3Client.MinioClient
+	landPlotsService             services.LandPlotsService
+	kptService                   services.KptService
+	validator                    *validator.Validate
+	retry                        *retryFunc.RetryFunc
+	saveKptUseCase               savekptHandler.KptUseCaseInterface
+	getKptUseCase                getDownloadLinkForKptHandler.GetKptUseCaseInterface
+	landPlotsHandler             *landPlotsHandler.LandPlotsHandler
+	saveKptHandler               *savekptHandler.SaveKptHandler
+	getDownloadLinkForKptHandler *getDownloadLinkForKptHandler.GetDownloadLinkKptHandler
 }
 
 func NewDiContainer(log *slog.Logger) *DiContainer {
@@ -136,12 +139,20 @@ func (d *DiContainer) Retry(ctx context.Context) *retryFunc.RetryFunc {
 	return d.retry
 }
 
-func (d *DiContainer) KptUseCase(ctx context.Context) kptHandler.KptUseCaseInterface {
-	if d.kptUseCase == nil {
-		d.kptUseCase = kptUsecase.NewKptUseCase(d.KptService(ctx), d.LandPlotsService(ctx), d.Retry(ctx), d.log)
+func (d *DiContainer) KptUseCase(ctx context.Context) savekptHandler.KptUseCaseInterface {
+	if d.saveKptUseCase == nil {
+		d.saveKptUseCase = kptUsecase.NewKptUseCase(d.KptService(ctx), d.LandPlotsService(ctx), d.Retry(ctx), d.log)
 	}
 
-	return d.kptUseCase
+	return d.saveKptUseCase
+}
+
+func (d *DiContainer) GetKptUseCase(ctx context.Context) getDownloadLinkForKptHandler.GetKptUseCaseInterface {
+	if d.getKptUseCase == nil {
+		d.getKptUseCase = kptUsecase.NewGetKptLinkAndInfoUseCase(d.KptService(ctx))
+	}
+
+	return d.getKptUseCase
 }
 
 func (d *DiContainer) LandPlotsHandler(ctx context.Context) *landPlotsHandler.LandPlotsHandler {
@@ -152,10 +163,18 @@ func (d *DiContainer) LandPlotsHandler(ctx context.Context) *landPlotsHandler.La
 	return d.landPlotsHandler
 }
 
-func (d *DiContainer) KptHandler(ctx context.Context) *kptHandler.KptHandler {
-	if d.kptHandler == nil {
-		d.kptHandler = kptHandler.NewKptHandler(d.log, d.KptUseCase(ctx))
+func (d *DiContainer) SaveKptHandler(ctx context.Context) *savekptHandler.SaveKptHandler {
+	if d.saveKptHandler == nil {
+		d.saveKptHandler = savekptHandler.NewKptHandler(d.log, d.KptUseCase(ctx))
 	}
 
-	return d.kptHandler
+	return d.saveKptHandler
+}
+
+func (d *DiContainer) GetDownloadLinkForKptHandler(ctx context.Context) *getDownloadLinkForKptHandler.GetDownloadLinkKptHandler {
+	if d.getDownloadLinkForKptHandler == nil {
+		d.getDownloadLinkForKptHandler = getDownloadLinkForKptHandler.NewGetDownloadLinkKptHandler(d.log, d.GetKptUseCase(ctx), d.Validator())
+	}
+
+	return d.getDownloadLinkForKptHandler
 }

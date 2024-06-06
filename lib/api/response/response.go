@@ -13,10 +13,10 @@ type Response struct {
 }
 
 const (
-	StatusOK         = "OK"
-	StatusError      = "ERROR"
-	StatusBadRequest = "BAD_REQUEST"
-	StatusConflict   = "CONFLICT"
+	StatusOK         = "200"
+	StatusError      = "500"
+	StatusBadRequest = "400"
+	StatusConflict   = "409"
 )
 
 func OK() Response {

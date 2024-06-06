@@ -1,8 +1,9 @@
 package routes
 
 const (
-	GetCoordinates = "/get_coordinates"
-	SaveKpt        = "/save_kpt"
+	GetCoordinates        = "/get_coordinates"
+	SaveKpt               = "/save_kpt"
+	GetDownloadLinkForKpt = "/get_kpt"
 )
 
 const (

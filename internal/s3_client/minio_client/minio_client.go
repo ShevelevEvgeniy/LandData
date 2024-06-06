@@ -3,6 +3,8 @@ package minio_client
 import (
 	"context"
 	"io"
+	"net/url"
+	"time"
 
 	"github.com/ShevelevEvgeniy/app/config"
 	def "github.com/ShevelevEvgeniy/app/internal/s3_client"
@@ -61,14 +63,27 @@ func (m *MinioClient) UploadFile(ctx context.Context, fileName string, file io.R
 	return err
 }
 
-func (m *MinioClient) DownloadFile(fileName string) ([]byte, error) {
-	return nil, nil
+func (m *MinioClient) GetLinkDownload(ctx context.Context, fileName string) (*url.URL, error) {
+	u, err := m.client.PresignedGetObject(ctx, m.Bucket, fileName, time.Hour, nil)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get presigned url")
+	}
+
+	return u, nil
 }
 
 func (m *MinioClient) GetMinio() *minio.Client {
+	if m.client == nil {
+		return nil
+	}
+
 	return m.client
 }
 
 func (m *MinioClient) GetBucket() string {
+	if m.client == nil {
+		return ""
+	}
+
 	return m.Bucket
 }

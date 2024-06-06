@@ -2,13 +2,11 @@ package land_plots_repository
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5/pgxpool"
-	"time"
-
 	"github.com/ShevelevEvgeniy/app/internal/dto"
 	"github.com/ShevelevEvgeniy/app/internal/repository/model"
 	repositoryQuery "github.com/ShevelevEvgeniy/app/internal/repository/repository_query"
 	generateQuery "github.com/ShevelevEvgeniy/app/lib/generate_query"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pkg/errors"
 )
 
@@ -25,9 +23,6 @@ func NewLandPlotsRepository(pool *pgxpool.Pool) *LandPlotsRepository {
 }
 
 func (lp *LandPlotsRepository) GetCoordinates(ctx context.Context, CadNumber string) (string, error) {
-	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
-	defer cancel()
-
 	var polygonText string
 
 	conn, err := lp.pool.Acquire(ctx)
@@ -46,9 +41,6 @@ func (lp *LandPlotsRepository) GetCoordinates(ctx context.Context, CadNumber str
 }
 
 func (lp *LandPlotsRepository) SaveLandPlots(ctx context.Context, landPlots []model.LandPlot) error {
-	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
-	defer cancel()
-
 	query, values, err := generateQuery.GenerateMultiInsertQuery(landPlots, tableName, true)
 	if err != nil {
 		return errors.Wrap(err, "Failed create query db")
