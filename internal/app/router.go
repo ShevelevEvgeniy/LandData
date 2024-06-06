@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	checkIp "github.com/ShevelevEvgeniy/app/internal/http-server/api/check_ip"
 
 	"github.com/ShevelevEvgeniy/app/config/routes"
 	apiAuth "github.com/ShevelevEvgeniy/app/internal/http-server/api/auth"
@@ -19,6 +20,7 @@ func (a *App) initRouter(ctx context.Context, DiContainer *DiContainer) *chi.Mux
 
 	router.Route(routes.ApiV1Group, func(router chi.Router) {
 		router.Use(apiAuth.Auth(a.log, DiContainer.Config(ctx).Auth.ApiKey))
+		router.Use(checkIp.CheckIp(ctx, DiContainer.IpInfoClient(ctx), DiContainer.Retry(ctx), DiContainer.Config(ctx).IpInfo, a.log))
 
 		router.Route(routes.LandPlotsGroup, func(router chi.Router) {
 			router.Get(routes.GetCoordinates, DiContainer.LandPlotsHandler(ctx).GetCoordinates(ctx))
@@ -26,7 +28,7 @@ func (a *App) initRouter(ctx context.Context, DiContainer *DiContainer) *chi.Mux
 
 		router.Route(routes.KptGroup, func(router chi.Router) {
 			router.Post(routes.SaveKpt, DiContainer.SaveKptHandler(ctx).SaveKpt(ctx))
-			router.Get(routes.GetDownloadLinkForKpt, DiContainer.GetDownloadLinkForKptHandler(ctx).GetDownloadLinkKpt(ctx))
+			router.Get(routes.GetDownloadLinkForKpt, DiContainer.GetDownloadLinkKptHandler(ctx).GetDownloadLinkKpt(ctx))
 		})
 	})
 

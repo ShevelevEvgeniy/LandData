@@ -30,7 +30,7 @@ func NewGetDownloadLinkKptHandler(log *slog.Logger, useCase GetKptUseCaseInterfa
 	}
 }
 
-func (h *GetDownloadLinkKptHandler) GetDownloadLinkKpt(ctx context.Context) http.HandlerFunc {
+func (h GetDownloadLinkKptHandler) GetDownloadLinkKpt(ctx context.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		const op = "handler.GetDownloadLinkKpt.New"
 
