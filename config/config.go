@@ -15,6 +15,7 @@ type Config struct {
 	Auth        *Auth
 	Minio       *Minio
 	RetryConfig *RetryConfig
+	IpInfo      *IpInfo
 }
 
 func MustLoad(log *slog.Logger) *Config {

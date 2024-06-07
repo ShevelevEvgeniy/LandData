@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	IpInfoClient "github.com/ShevelevEvgeniy/app/internal/clients/ip_info_client"
 	getDownloadLinkForKptHandler "github.com/ShevelevEvgeniy/app/internal/http-server/api/v1/handlers/get_download_link_kpt_handler"
 	kptUsecase "github.com/ShevelevEvgeniy/app/internal/usecase/kpt_usecase"
 	retryFunc "github.com/ShevelevEvgeniy/app/pkg/retry_func"
@@ -42,6 +43,7 @@ type DiContainer struct {
 	landPlotsHandler             *landPlotsHandler.LandPlotsHandler
 	saveKptHandler               *savekptHandler.SaveKptHandler
 	getDownloadLinkForKptHandler *getDownloadLinkForKptHandler.GetDownloadLinkKptHandler
+	ipInfoClient                 *IpInfoClient.IpInfoClient
 }
 
 func NewDiContainer(log *slog.Logger) *DiContainer {
@@ -99,6 +101,19 @@ func (d *DiContainer) S3Clients(ctx context.Context) s3Client.MinioClient {
 	}
 
 	return d.s3Clients
+}
+
+func (d *DiContainer) IpInfoClient(ctx context.Context) *IpInfoClient.IpInfoClient {
+	if d.ipInfoClient == nil {
+		var err error
+		d.ipInfoClient = IpInfoClient.NewIpInfoClient(d.Config(ctx).IpInfo)
+		if err != nil {
+			d.log.Error("Failed to initialize clients: ", sl.Err(err))
+			os.Exit(1)
+		}
+	}
+
+	return d.ipInfoClient
 }
 
 func (d *DiContainer) LandPlotsService(ctx context.Context) services.LandPlotsService {
@@ -171,7 +186,7 @@ func (d *DiContainer) SaveKptHandler(ctx context.Context) *savekptHandler.SaveKp
 	return d.saveKptHandler
 }
 
-func (d *DiContainer) GetDownloadLinkForKptHandler(ctx context.Context) *getDownloadLinkForKptHandler.GetDownloadLinkKptHandler {
+func (d *DiContainer) GetDownloadLinkKptHandler(ctx context.Context) *getDownloadLinkForKptHandler.GetDownloadLinkKptHandler {
 	if d.getDownloadLinkForKptHandler == nil {
 		d.getDownloadLinkForKptHandler = getDownloadLinkForKptHandler.NewGetDownloadLinkKptHandler(d.log, d.GetKptUseCase(ctx), d.Validator())
 	}
