@@ -2,7 +2,7 @@ include .env
 
 install:
 	@$(MAKE) -s down
-#	@$(MAKE) -s docker-build
+	@$(MAKE) -s docker-build
 	@$(MAKE) -s up
 	@$(MAKE) -s migrate-up
 	@echo "--- Application installed ---"
